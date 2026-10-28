@@ -12,3 +12,4 @@ Daily Goals
 - [ ] Review the missing-value findings with Waleed and agree on how to handle them.
 - [ ] Apply the agreed changes in the notebook.
 - [X] Update the `README.md` (project overview, research objectives, data dictionary).
+- [ ] To Rewrite the changes.md section 3 -Missing values and Treatment.

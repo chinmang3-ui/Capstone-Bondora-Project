@@ -1,2 +1,14 @@
-1. Yesterday we created the Repo, We added the gitattributes to compress the large datasets to push it in GitHub, We cleaned the Data and started to analyse each columns respectively. We also added the README file - 27-10-2026
-2. To check with Waleed for the Missing Values and then to work accordingly and also to rewrite in README file - 28-10.2026
+Daily Goals
+
+## 27-10-2026
+
+- [X] Create the GitHub repository.
+- [X] Set up Git LFS (via `.gitattributes`) to store the large Excel dataset on GitHub.
+- [X] Load and clean the data, and start analysing each column.
+- [X] Add the `README.md` file.
+
+## 28-10-2026
+
+- [ ] Review the missing-value findings with Waleed and agree on how to handle them.
+- [ ] Apply the agreed changes in the notebook.
+- [X] Update the `README.md` (project overview, research objectives, data dictionary).

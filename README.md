@@ -1,6 +1,6 @@
 ## Project Overview
 
-**Bondora** is a European peer-to-peer lending platform. Borrowers in **Estonia, Finland, Spain and the Netherlands** apply for loans online, and the loans are **funded by investors** rather than by a bank.
+**Bondora** is a European peer-to-peer lending platform. Borrowers in **Estonia, Finland, Spain, Netherlands, Denamrk, Latvia, Slovakia, Lithuania**  apply for loans online, and the loans are **funded by investors** rather than by a bank.
 
 This project studies **credit risk** in Bondora's loan portfolio. Using data on about 7,90,000 loans, we identify which borrower characteristics and loan terms are linked to default, and translate these findings into practical recommendations for lenders and investors.
 

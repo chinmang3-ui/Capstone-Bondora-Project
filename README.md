@@ -75,3 +75,66 @@ Shows whether a loan became risky or defaulted. These are the outcomes the analy
 | `has_default_within_12_months` | Whether the loan defaulted within its first 12 months: 1 = yes, 0 = no. Empty if the loan is not yet 12 months old.     |
 | `customer_risk_rating`         | Risk rating given to the borrower when the loan was issued, from AA (safest) to HR (riskiest). Missing for older loans. |
 | `default_flag`                 | *Created in the analysis.* Copy of `is_default` as a whole number (0/1), used for calculating default rates.        |
+
+
+## Key Performance Indicators (KPIs)
+
+The analysis is based on **394,083 loans issued between 2023 and 2025** (after removing loans issued before 2023, loans issued in 2026, and cancelled loans).
+
+### KPI definitions
+
+| KPI | Definition | Why it matters |
+|---|---|---|
+| **Default rate** | Share of loans in default (`default_flag` = 1) | Main outcome of the analysis |
+| **12-month default rate** | Share of loans that defaulted within their first 12 months, for loans with a known 12-month outcome | Early warning signal; fair comparison across years |
+| **Default rate by segment** | Default rate by risk rating, country, income, loan amount, interest rate and loan duration | Shows which borrower and loan groups drive risk |
+| **Data completeness** | Share of missing values per key column | Shows how far the results can be trusted |
+
+### Results so far
+
+| KPI | Result | Status |
+|---|---|---|
+| Default rate | **14.3%** (56,364 of 394,083 loans) | ✅ Completed |
+| 12-month default rate | **X%** (of X loans with a known outcome) | ✅ Completed |
+| Default rate by risk rating | Rises steadily from **AA (X%)** to **G (X%)**; unrated loans: **X%** | ✅ Completed |
+| Default rate by country, income, amount, interest rate and duration | — | ⏳ In progress |
+| Data completeness | Missing values checked and explained for every column | ✅ Completed |
+
+### Notes
+
+- The **12-month default rate** excludes active loans younger than 12 months, because their outcome is not yet known.
+- The **HR** rating group contains only 19 loans and is too small to draw conclusions.
+- **Unrated loans** default more often than the average, which makes the missing rating itself a risk signal.
+- **Written-off loans** (14,186) are currently counted as not defaulted, following Bondora's definition. Whether they should count as defaults is to be confirmed with our mentor.
+
+
+## Data Pipeline
+
+The project follows ten steps, from the raw Excel file to the final presentation. Code and documentation are versioned with **Git and GitHub** throughout.
+
+| Step | Stage | What we do | Tools | Status |
+|---|---|---|---|---|
+| 1 | **Source** | Review the raw loan file and the Dataset Dictionary | Excel | ✅ Done |
+| 2 | **Load** | Read the Excel file and save it as Parquet for fast reloading | Python, pandas | ✅ Done |
+| 3 | **Data types** | Convert columns to categories and 0/1 flags; order the risk rating from AA (best) to HR (riskiest) | pandas | ✅ Done |
+| 4 | **Filter** | Keep loans issued 2023–2025, where income and risk rating are recorded | pandas | ✅ Done |
+| 5 | **Clean** | Drop `nr_of_payments`; remove 16,784 cancelled loans; explain every missing value; create `default_flag`, `months_in_default_flag` and `rating_group`; fill the 12-month flag where the outcome is known | pandas | ✅ Done |
+| 6 | **KPIs** | Default rate, 12-month default rate and default rate by segment | pandas | 🔶 In progress |
+| 7 | **Store and query** | Load the clean data into a data warehouse and answer the business questions in SQL | SQL, data warehouse | ⬜ Planned |
+| 8 | **Visualise** | Charts of default rates by segment and an interactive dashboard | matplotlib, seaborn, Tableau / Power BI | ⬜ Planned |
+| 9 | **Model** | Simple prediction model using only information known when the loan is issued (to avoid leakage) | scikit-learn | ⬜ Planned |
+| 10 | **Present** | Findings and recommendations for credit-risk assessment and loan monitoring | PowerPoint / Google Slides | ⬜ Planned |
+
+### Dataset size at each step
+
+| Step | Loans |
+|---|---|
+| Raw dataset | 843,755 |
+| After year filter (2023–2025) | 410,867 |
+| After removing cancelled loans | **394,083** |
+
+### Current results
+
+- Default rate: **14.3%** (56,364 of 394,083 loans)
+- 12-month default rate: **X%**
+- Default rate rises steadily with the risk rating, from AA to G.

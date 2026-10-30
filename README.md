@@ -76,29 +76,28 @@ Shows whether a loan became risky or defaulted. These are the outcomes the analy
 | `customer_risk_rating`         | Risk rating given to the borrower when the loan was issued, from AA (safest) to HR (riskiest). Missing for older loans. |
 | `default_flag`                 | *Created in the analysis.* Copy of `is_default` as a whole number (0/1), used for calculating default rates.        |
 
-
 ## Key Performance Indicators (KPIs)
 
 The analysis is based on **394,083 loans issued between 2023 and 2025** (after removing loans issued before 2023, loans issued in 2026, and cancelled loans).
 
 ### KPI definitions
 
-| KPI | Definition | Why it matters |
-|---|---|---|
-| **Default rate** | Share of loans in default (`default_flag` = 1) | Main outcome of the analysis |
-| **12-month default rate** | Share of loans that defaulted within their first 12 months, for loans with a known 12-month outcome | Early warning signal; fair comparison across years |
-| **Default rate by segment** | Default rate by risk rating, country, income, loan amount, interest rate and loan duration | Shows which borrower and loan groups drive risk |
-| **Data completeness** | Share of missing values per key column | Shows how far the results can be trusted |
+| KPI                               | Definition                                                                                          | Why it matters                                     |
+| --------------------------------- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| **Default rate**            | Share of loans in default (`default_flag` = 1)                                                    | Main outcome of the analysis                       |
+| **12-month default rate**   | Share of loans that defaulted within their first 12 months, for loans with a known 12-month outcome | Early warning signal; fair comparison across years |
+| **Default rate by segment** | Default rate by risk rating, country, income, loan amount, interest rate and loan duration          | Shows which borrower and loan groups drive risk    |
+| **Data completeness**       | Share of missing values per key column                                                              | Shows how far the results can be trusted           |
 
 ### Results so far
 
-| KPI | Result | Status |
-|---|---|---|
-| Default rate | **14.3%** (56,364 of 394,083 loans) | ✅ Completed |
-| 12-month default rate | **X%** (of X loans with a known outcome) | ✅ Completed |
-| Default rate by risk rating | Rises steadily from **AA (X%)** to **G (X%)**; unrated loans: **X%** | ✅ Completed |
-| Default rate by country, income, amount, interest rate and duration | — | ⏳ In progress |
-| Data completeness | Missing values checked and explained for every column | ✅ Completed |
+| KPI                                                                 | Result                                                                                 | Status         |
+| ------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | -------------- |
+| Default rate                                                        | **14.3%** (56,364 of 394,083 loans)                                              | ✅ Completed   |
+| 12-month default rate                                               | **X%** (of X loans with a known outcome)                                         | ✅ Completed   |
+| Default rate by risk rating                                         | Rises steadily from **AA (X%)** to **G (X%)**; unrated loans: **X%** | ✅ Completed   |
+| Default rate by country, income, amount, interest rate and duration | —                                                                                     | ⏳ In progress |
+| Data completeness                                                   | Missing values checked and explained for every column                                  | ✅ Completed   |
 
 ### Notes
 
@@ -107,30 +106,29 @@ The analysis is based on **394,083 loans issued between 2023 and 2025** (after r
 - **Unrated loans** default more often than the average, which makes the missing rating itself a risk signal.
 - **Written-off loans** (14,186) are currently counted as not defaulted, following Bondora's definition. Whether they should count as defaults is to be confirmed with our mentor.
 
-
 ## Data Pipeline
 
 The project follows ten steps, from the raw Excel file to the final presentation. Code and documentation are versioned with **Git and GitHub** throughout.
 
-| Step | Stage | What we do | Tools | Status |
-|---|---|---|---|---|
-| 1 | **Source** | Review the raw loan file and the Dataset Dictionary | Excel | ✅ Done |
-| 2 | **Load** | Read the Excel file and save it as Parquet for fast reloading | Python, pandas | ✅ Done |
-| 3 | **Data types** | Convert columns to categories and 0/1 flags; order the risk rating from AA (best) to HR (riskiest) | pandas | ✅ Done |
-| 4 | **Filter** | Keep loans issued 2023–2025, where income and risk rating are recorded | pandas | ✅ Done |
-| 5 | **Clean** | Drop `nr_of_payments`; remove 16,784 cancelled loans; explain every missing value; create `default_flag`, `months_in_default_flag` and `rating_group`; fill the 12-month flag where the outcome is known | pandas | ✅ Done |
-| 6 | **KPIs** | Default rate, 12-month default rate and default rate by segment | pandas | 🔶 In progress |
-| 7 | **Store and query** | Load the clean data into a data warehouse and answer the business questions in SQL | SQL, data warehouse | ⬜ Planned |
-| 8 | **Visualise** | Charts of default rates by segment and an interactive dashboard | matplotlib, seaborn, Tableau / Power BI | ⬜ Planned |
-| 9 | **Model** | Simple prediction model using only information known when the loan is issued (to avoid leakage) | scikit-learn | ⬜ Planned |
-| 10 | **Present** | Findings and recommendations for credit-risk assessment and loan monitoring | PowerPoint / Google Slides | ⬜ Planned |
+| Step | Stage                     | What we do                                                                                                                                                                                                       | Tools                                   | Status         |
+| ---- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | -------------- |
+| 1    | **Source**          | Review the raw loan file and the Dataset Dictionary                                                                                                                                                              | Excel                                   | ✅ Done        |
+| 2    | **Load**            | Read the Excel file and save it as Parquet for fast reloading                                                                                                                                                    | Python, pandas                          | ✅ Done        |
+| 3    | **Data types**      | Convert columns to categories and 0/1 flags; order the risk rating from AA (best) to HR (riskiest)                                                                                                               | pandas                                  | ✅ Done        |
+| 4    | **Filter**          | Keep loans issued 2023–2025, where income and risk rating are recorded                                                                                                                                          | pandas                                  | ✅ Done        |
+| 5    | **Clean**           | Drop `nr_of_payments`; remove 16,784 cancelled loans; explain every missing value; create `default_flag`, `months_in_default_flag` and `rating_group`; fill the 12-month flag where the outcome is known | pandas                                  | ✅ Done        |
+| 6    | **KPIs**            | Default rate, 12-month default rate and default rate by segment                                                                                                                                                  | pandas                                  | 🔶 In progress |
+| 7    | **Store and query** | Load the clean data into a data warehouse and answer the business questions in SQL                                                                                                                               | SQL, data warehouse                     | ⬜ Planned     |
+| 8    | **Visualise**       | Charts of default rates by segment and an interactive dashboard                                                                                                                                                  | matplotlib, seaborn, Tableau / Power BI | ⬜ Planned     |
+| 9    | **Model**           | Simple prediction model using only information known when the loan is issued (to avoid leakage)                                                                                                                  | scikit-learn                            | ⬜ Planned     |
+| 10   | **Present**         | Findings and recommendations for credit-risk assessment and loan monitoring                                                                                                                                      | PowerPoint / Google Slides              | ⬜ Planned     |
 
 ### Dataset size at each step
 
-| Step | Loans |
-|---|---|
-| Raw dataset | 843,755 |
-| After year filter (2023–2025) | 410,867 |
+| Step                           | Loans             |
+| ------------------------------ | ----------------- |
+| Raw dataset                    | 843,755           |
+| After year filter (2023–2025) | 410,867           |
 | After removing cancelled loans | **394,083** |
 
 ### Current results
@@ -138,3 +136,51 @@ The project follows ten steps, from the raw Excel file to the final presentation
 - Default rate: **14.3%** (56,364 of 394,083 loans)
 - 12-month default rate: **X%**
 - Default rate rises steadily with the risk rating, from AA to G.
+
+## Missing-value summary (2023–2025, 410,865 loans)
+
+### Original columns
+
+| #  | Column                           | Missing             | Missing % | Reason                                                             | Treatment                                                                                        | Status      |
+| -- | -------------------------------- | ------------------- | --------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ | ----------- |
+| 1  | `loan_id`                      | 0                   | 0.0%      | –                                                                 | –                                                                                               | ✅ Complete |
+| 2  | `country`                      | 0                   | 0.0%      | –                                                                 | –                                                                                               | ✅ Complete |
+| 3  | `loan_issued_at`               | 0                   | 0.0%      | –                                                                 | Filtered to 2023–2025                                                                           | ✅ Complete |
+| 4  | `early_repaid_at`              | 278,773             | 67.9%     | Loan was not paid off early (missing by design)                    | Kept as missing; Excel numbers converted to dates                                                | ✅ Analysed |
+| 5  | `issued_amount`                | 0                   | 0.0%      | –                                                                 | –                                                                                               | ✅ Complete |
+| 6  | `loan_status`                  | 0                   | 0.0%      | –                                                                 | Converted to category                                                                            | ✅ Complete |
+| 7  | `initial_interest_rate`        | 0                   | 0.0%      | –                                                                 | –                                                                                               | ✅ Complete |
+| 8  | `principal_balance`            | 0                   | 0.0%      | –                                                                 | –                                                                                               | ✅ Complete |
+| 9  | `principal_debt`               | 0                   | 0.0%      | –                                                                 | –                                                                                               | ✅ Complete |
+| 10 | `principal_paid_total`         | 0                   | 0.0%      | –                                                                 | –                                                                                               | ✅ Complete |
+| 11 | `interest_paid_total`          | 0                   | 0.0%      | –                                                                 | –                                                                                               | ✅ Complete |
+| 12 | `is_default`                   | 0                   | 0.0%      | –                                                                 | Main default indicator (0/1)                                                                     | ✅ Complete |
+| 13 | `next_payment_date_local`      | 223,712             | 54.4%     | Repaid or defaulted loans have no next payment (missing by design) | Kept as missing; Excel numbers converted to dates; not used to explain default (snapshot column) | ✅ Analysed |
+| 14 | `months_in_default`            | 354,501             | 86.3%     | Loan never defaulted (missing by design)                           | Kept as missing; created `months_in_default_flag`                                              | ✅ Analysed |
+| 15 | `months_on_book`               | 2,487               | 0.6%      | All are cancelled loans that never ran                             | Kept as missing                                                                                  | ✅ Analysed |
+| 16 | `loan_status_risk`             | 0                   | 0.0%      | –                                                                 | Converted to category                                                                            | ✅ Complete |
+| 17 | `repaid_amount_total`          | 0                   | 0.0%      | –                                                                 | –                                                                                               | ✅ Complete |
+| 18 | `initial_loan_duration`        | 0                   | 0.0%      | –                                                                 | –                                                                                               | ✅ Complete |
+| 19 | `combined_income`              | 0 (was 2)           | 0.0%      | 2 isolated gaps                                                    | 2 rows dropped                                                                                   | ✅ Analysed |
+| 20 | `has_default_within_12_months` | 25,466 (was 37,141) | 6.2%      | Active loans younger than 12 months; outcome not yet known         | Filled where known (defaulted → 1, repaid → 0); rest kept as missing; analysed in `df_12m`   | ✅ Analysed |
+| 21 | `customer_risk_rating`         | 56,466              | 13.7%     | Loans issued without a rating                                      | Kept as missing; grouped as "Unrated" in `rating_group`                                        | ✅ Analysed |
+
+### Dropped column
+
+| Column             | Reason                                                                                  |
+| ------------------ | --------------------------------------------------------------------------------------- |
+| `nr_of_payments` | Depends on the data extraction date, not on the loan; no information about default risk |
+
+### New columns created
+
+| Column                     | Meaning                                                              | Missing |
+| -------------------------- | -------------------------------------------------------------------- | ------- |
+| `months_in_default_flag` | 1 = loan has defaulted, 0 = never defaulted                          | 0       |
+| `rating_group`           | Risk rating with "Unrated" for missing ratings                       | 0       |
+| `is_cancelled`           | 1 = cancelled loan, 0 = not cancelled (kept in data, coach decision) | 0       |
+
+### Summary
+
+- **All 21 original columns have been checked.** 14 have no missing values; 7 had missing values, and each one has been explained and handled.
+- Most gaps are **missing by design**: the field does not apply to that loan (no early repayment, no next payment, never defaulted, outcome not yet known).
+- Only **2 rows** were removed. All other loans were kept, including the 16,784 cancelled loans.

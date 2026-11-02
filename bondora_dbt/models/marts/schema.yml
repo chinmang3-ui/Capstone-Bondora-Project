@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: fct_loans
+    columns:
+      - name: loan_id
+        tests: [unique, not_null]
+      - name: is_default
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: rating_group
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['AA','A','B','C','D','E','F','G','HR','Unrated']

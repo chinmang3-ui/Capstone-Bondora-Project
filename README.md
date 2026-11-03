@@ -245,4 +245,6 @@ Capstone-Bondora-Project/
 │   └── daily_goals.md        # daily progress
 ├── Bondora Credit Risk – Standup.pptx
 └── README.md
+
+
 ```

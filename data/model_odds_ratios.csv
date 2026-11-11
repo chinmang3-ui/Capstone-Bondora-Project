@@ -1,0 +1,37 @@
+feature,odds_ratio,model
+log_income,0.7851151343103229,Default (12 months)
+log_amount,1.260762990765659,Default (12 months)
+initial_interest_rate,1.1362421564577097,Default (12 months)
+initial_loan_duration,1.2231044057788212,Default (12 months)
+country_Estonia,0.10050501682402968,Default (12 months)
+country_Finland,0.1665484855705508,Default (12 months)
+country_Latvia,0.383495801886841,Default (12 months)
+country_Netherlands,0.16176650603343584,Default (12 months)
+country_Spain,0.8420472432366332,Default (12 months)
+rating_group_AA,0.5392820106120523,Default (12 months)
+rating_group_B,1.3217838286378019,Default (12 months)
+rating_group_C,1.7932192680599754,Default (12 months)
+rating_group_D,2.3292388445809387,Default (12 months)
+rating_group_E,2.8495740280692043,Default (12 months)
+rating_group_F,3.0587661920238682,Default (12 months)
+rating_group_G,3.3822545619303965,Default (12 months)
+rating_group_HR,0.9644631022079801,Default (12 months)
+rating_group_Unrated,1.8367336696760912,Default (12 months)
+log_income,1.0807764634258101,Cancellation
+log_amount,0.717463151338141,Cancellation
+initial_interest_rate,0.9355598309447629,Cancellation
+initial_loan_duration,0.7692191755562069,Cancellation
+country_Estonia,3.503579812956938,Cancellation
+country_Finland,2.704673678020744,Cancellation
+country_Latvia,3.2173155449966964,Cancellation
+country_Netherlands,1.624991375088053,Cancellation
+country_Spain,1.5448593308144651,Cancellation
+rating_group_AA,1.2071545253322111,Cancellation
+rating_group_B,1.0066962817480378,Cancellation
+rating_group_C,0.8519452672342896,Cancellation
+rating_group_D,0.888483375355859,Cancellation
+rating_group_E,0.8898605238615972,Cancellation
+rating_group_F,0.9257807857879812,Cancellation
+rating_group_G,1.2514879190487116,Cancellation
+rating_group_HR,1.1422786230815907,Cancellation
+rating_group_Unrated,0.9344903643921127,Cancellation

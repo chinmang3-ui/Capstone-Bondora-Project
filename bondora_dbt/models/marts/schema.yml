@@ -2,15 +2,80 @@ version: 2
 
 models:
   - name: fct_loans
+    description: "One row per loan (2023–2025), with bands for income, loan amount, interest rate and duration."
     columns:
       - name: loan_id
+        description: "Unique loan ID"
         tests: [unique, not_null]
       - name: is_default
+        description: "1 = loan is in default, 0 = not in default"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [0, 1]
+      - name: is_cancelled
+        description: "1 = cancelled loan, 0 = not cancelled"
+        tests:
+          - accepted_values:
+              values: [0, 1]
+      - name: has_default_within_12_months
+        description: "1 = defaulted within 12 months; empty if the outcome is not yet known"
         tests:
           - accepted_values:
               values: [0, 1]
       - name: rating_group
+        description: "Risk rating AA–HR, or 'Unrated'"
         tests:
           - not_null
           - accepted_values:
               values: ['AA','A','B','C','D','E','F','G','HR','Unrated']
+      - name: country
+        description: "Borrower's country"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Finland','Estonia','Netherlands','Latvia','Denmark','Spain']
+
+  - name: kpi_overall
+    description: "Headline KPIs for the whole portfolio: default rate, 12-month default rate, cancellation rate."
+
+  - name: kpi_by_segment
+    description: "Default, 12-month default and cancellation rate for every group of six segments."
+    columns:
+      - name: segment
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['rating_group','country','income_band','amount_band','rate_band','duration_band']
+      - name: loans
+        tests: [not_null]
+
+  - name: kpi_by_year
+    description: "Loans, default rate, 12-month default rate and cancellation rate for each issue year (2023–2025)."
+    columns:
+      - name: issued_year
+        description: "Year the loan was issued"
+        tests:
+          - unique
+          - not_null
+          - accepted_values:
+              values: [2023, 2024, 2025]
+      - name: loans
+        description: "Number of loans issued in that year"
+        tests: [not_null]
+        
+  - name: kpi_cross_segment
+    description: "Default rate, 12-month default rate and interest rate for combinations of two segments (rating x country, rating x duration)."
+    columns:
+      - name: combination
+        description: "Which two segments are combined"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['rating_group x country', 'rating_group x duration_band']
+      - name: value_1
+        tests: [not_null]
+      - name: value_2
+        tests: [not_null]
+      - name: loans
+        tests: [not_null]

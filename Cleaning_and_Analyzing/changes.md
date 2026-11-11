@@ -75,3 +75,9 @@ All other 14 columns have no missing values.
 | Transform | dbt builds `stg_loans` → `fct_loans` (with income, amount, interest-rate and duration bands) → `kpi_overall` and `kpi_by_segment` in the `analytics` schema. |
 | Test      | 5 dbt tests pass: `loan_id` is unique and not null, `is_default` is only 0 or 1, `rating_group` is never empty and only contains valid grades.                     |
 | Check     | SQL results match pandas: 13.7% default rate, 9.1% 12-month rate, AA 5.5% → G 26.5%.                                                                                    |
+
+
+bondora                      ← the database
+├── public      ← default folder, created automatically by PostgreSQL (empty)
+├── raw         ← created by us (notebook): the clean data as loaded
+└── analytics   ← created by dbt: the KPI tables for Tableau

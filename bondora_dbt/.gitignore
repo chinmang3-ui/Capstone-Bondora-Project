@@ -3,3 +3,7 @@ target/
 dbt_packages/
 logs/
 .env
+.venv/
+bondora_dbt/target/
+bondora_dbt/logs/
+bondora_dbt/dbt_packages/

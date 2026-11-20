@@ -29,20 +29,27 @@ The aim is to identify patterns in default: **which borrowers** default more oft
 1. **Portfolio:** Two thirds of the loans are from Finland (66%). Lending more than doubled from 2023 to 2025 (81,556 → 182,054 loans). Most loans are small: under 2,000 EUR, with a median of about 1,000 EUR. Nearly half of the loans are still active; 13.7% are in default, 4.1% were cancelled and 3.5% were written off.
 2. **Risk drivers:** Default risk differs strongly between segments (overall default rate 13.7%). The risk rating is the clearest driver: default rises steadily from 5.5% for AA to 26.5% for G. By country, Spain (51.5%), Latvia (31.4%) and Denmark (29.7%) are far above average, while Finland (13.1%) and the Netherlands (8.6%) are at or below it. Default falls as income rises (19.6% under 1,500 EUR vs 10.1% above 3,500 EUR) and rises with the interest rate (9.3% under 15% vs 24.7% above 25%). Loans of 2,000–4,999 EUR (17.4%) and 37–60 months (18.1%) are the riskiest amount and duration groups, while loans up to 12 months default least (5.3%).
 3. **Defaulted vs non-defaulted loans:** Defaulted borrowers earn less (2,302 vs 2,593 EUR per month), borrow more (2,236 vs 1,943 EUR), pay higher interest (19.6% vs 18.0%) and take slightly longer loans (61 vs 58 months). The typical defaulted loan combines lower income, a larger amount, a higher rate and a longer duration.
-4. **Recommendations:**
+4. **Prediction model:** A multiple logistic regression, using only information known on the day of issue (income, amount, interest rate, duration, country, rating), reaches an **AUC of 0.70** (5-fold cross-validation: 0.704 ± 0.002). The riskiest 10% of loans default **24.5%**, the safest 10% only **1.7%** (14×). Rating is the strongest driver (G: 3.4× the odds of A), and country matters a lot (Estonia: 10× lower odds than Denmark). At cut-off 0.5 the model flags 41% of loans and catches 68% of defaults. **3,131 young 2025 loans** are already in the riskiest group. Cancellations are harder to predict (AUC 0.65) and depend mainly on country.
+5. **Recommendations:**
 
    - Check F/G-rated and unrated loans more strictly; they default 2–5× more often than AA loans.
    - Pay extra attention to borrowers with income under 1,500 EUR (19.6% default).
    - Treat an interest rate of 25%+ as a warning sign (24.7% default).
    - Monitor 37–60-month loans and loans of 2,000–4,999 EUR more closely.
    - Review lending in Spain, Latvia and Denmark: very high default, but small volumes.
-5. **Limitations:**
+   - Score every new loan with the model and review loans with a score above 0.5 (catches 68% of defaults); adjust the cut-off to the team's capacity.
+   - Put the 3,131 young 2025 loans in the riskiest group on a watch list and check their payments monthly.
+   - Plan for more cancellations in Estonia, Latvia and Finland (up to 3.5× Denmark).
+6. **Limitations:**
 
    - The results show **association, not cause**.
    - Many 2025 loans are still active, so their final default rate is not known yet.
    - Spain, Latvia and Denmark have few loans, so their rates are less stable; the HR rating (19 loans) was not interpreted.
    - **Leakage:** columns such as `principal_debt`, `months_in_default` and `loan_status` are only known *after* a loan defaults, so they must not be used to predict default.
    - Bondora is a peer-to-peer platform with higher interest rates and different borrowers than a traditional bank, so the results do not transfer directly to banks.
+   - **False alarms:** at cut-off 0.5, only 14.9% of flagged loans actually default, so the model should support decisions, not make them.
+   - The cancellation model is weak (AUC 0.65) and should be used as a guide only.
+   - The model is based on past loans and must be retrained if lending rules or the economy change.
 
 ## Dataset Structure
 
@@ -191,19 +198,19 @@ All 21 original columns were checked. **14 have no missing values.** The other 7
 
 The project follows eleven steps, from the raw Excel file to the final presentation. Code and documentation are versioned with **Git and GitHub** throughout.
 
-| Step | Stage                         | What we do                                                                                                                                                                                                           | Tools                    | Status         |
-| ---- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ | -------------- |
-| 1    | **Source**              | Review the raw loan file and the data dictionary                                                                                                                                                                     | Excel                    | ✅ Done        |
-| 2    | **Load**                | Read the Excel file and save it as Parquet for fast reloading                                                                                                                                                        | Python, pandas           | ✅ Done        |
-| 3    | **Filter**              | Keep loans issued 2023–2025 (843,755 → 410,867 loans)                                                                                                                                                              | pandas                   | ✅ Done        |
-| 4    | **Data types**          | Convert columns to categories and 0/1 flags; order the risk rating from AA (best) to HR (riskiest); convert Excel date numbers to real dates                                                                         | pandas                   | ✅ Done        |
-| 5    | **Clean**               | Drop `nr_of_payments`; remove 2 rows with missing income; explain every missing value; create `months_in_default_flag`, `rating_group` and `is_cancelled`; fill the 12-month flag where the outcome is known | pandas                   | ✅ Done        |
-| 6    | **KPIs**                | Default rate, 12-month default rate, cancellation rate and default rate by rating, country, income, loan amount, interest rate and duration                                                                          | pandas, SQL              | ✅ Done        |
-| 7    | **Store and transform** | Load the clean data into PostgreSQL (`raw.loans`) and build tested KPI tables with dbt (`analytics` schema)                                                                                                      | PostgreSQL, pgAdmin, dbt | ✅ Done        |
-| 8    | **SQL analysis**        | Data-quality checks, default by issue year, defaulted vs non-defaulted loans and combined checks (country, amount, rating × duration) in `data_check.sql`                                                          | SQL, pgAdmin             | ✅ Done        |
-| 9    | **Visualise**           | Charts of default rates by segment, an interactive dashboard and a Tableau Story with findings and recommendations                                                                                                   | Tableau                  | ⬜ Next week   |
-| 10   | **Model**               | Simple prediction model using only information known when the loan is issued (to avoid leakage)                                                                                                                      | scikit-learn             | ⬜ Planned     |
-| 11   | **Present**             | Present the findings and recommendations for credit-risk assessment and loan monitoring                                                                                                                              | Tableau Story, PowerPoint | ⬜ Planned     |
+| Step | Stage                         | What we do                                                                                                                                                                                                           | Tools                    | Status  |
+| ---- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ | ------- |
+| 1    | **Source**              | Review the raw loan file and the data dictionary                                                                                                                                                                     | Excel                    | ✅ Done |
+| 2    | **Load**                | Read the Excel file and save it as Parquet for fast reloading                                                                                                                                                        | Python, pandas           | ✅ Done |
+| 3    | **Filter**              | Keep loans issued 2023–2025 (843,755 → 410,867 loans)                                                                                                                                                              | pandas                   | ✅ Done |
+| 4    | **Data types**          | Convert columns to categories and 0/1 flags; order the risk rating from AA (best) to HR (riskiest); convert Excel date numbers to real dates                                                                         | pandas                   | ✅ Done |
+| 5    | **Clean**               | Drop `nr_of_payments`; remove 2 rows with missing income; explain every missing value; create `months_in_default_flag`, `rating_group` and `is_cancelled`; fill the 12-month flag where the outcome is known | pandas                   | ✅ Done |
+| 6    | **KPIs**                | Default rate, 12-month default rate, cancellation rate and default rate by rating, country, income, loan amount, interest rate and duration                                                                          | pandas, SQL              | ✅ Done |
+| 7    | **Store and transform** | Load the clean data into PostgreSQL (`raw.loans`) and build tested KPI tables with dbt (`analytics` schema)                                                                                                      | PostgreSQL, pgAdmin, dbt | ✅ Done |
+| 8    | **SQL analysis**        | Data-quality checks, default by issue year, defaulted vs non-defaulted loans and combined checks (country, amount, rating × duration) in `data_check.sql`                                                         | SQL, pgAdmin             | ✅ Done |
+| 9    | **Visualise**           | Charts of default rates by segment and a Tableau Story with 14 business questions, recommendations and limitations                                                                                                   | Tableau                  | ✅ Done |
+| 10   | **Model**               | Multiple logistic regression using only information known at issue (no leakage); risk groups, odds ratios, cut-off analysis, early-warning scores and a cancellation model                                           | Python, scikit-learn     | ✅ Done |
+| 11   | **Present**             | Final presentation of the findings and recommendations for credit-risk assessment and loan monitoring                                                                                                                | Tableau Story            | ✅ Done |
 
 ### Dataset size at each step
 
@@ -254,22 +261,35 @@ loans_clean.parquet → raw.loans → stg_loans → fct_loans → kpi_overall, k
 
 Every query runs in pgAdmin on `raw.loans` and the dbt tables, with the result written as a comment underneath.
 
-| Part                         | What we checked                                              | Result                                                                                                       |
-| ---------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| KPIs and segments            | `kpi_overall` and `kpi_by_segment` for all six segments      | Same numbers as in pandas (default rate 13.7%)                                                               |
-| A. Data quality              | Duplicate IDs, value ranges, zero income, flag vs status     | 0 duplicates; 190 loans with income 0 (kept); `is_default` = 1 exactly for "Defaulted"                      |
-| B. By issue year             | Loans, default rate, 12-month default rate, loan age         | Lending more than doubled; 2025 loans only look safer because they are younger                             |
-| C. Defaulted vs not          | Average income, amount, interest rate, duration              | Defaulted loans: lower income, larger amount, higher rate, longer duration                                 |
-| D1. Country profile          | Income, amount, rate, share unrated and F/G/HR per country   | Spain: 98% unrated; Latvia: lowest income, highest rate; Denmark: 31.5% F/G/HR                              |
-| D2. Amount profile           | Income, rate and share AA/A/B per amount band                | 5,000+ loans go to better-rated borrowers (75% AA/A/B vs 43%), so they default less than 2,000–4,999      |
-| D3. Rating × duration        | Default rate for every rating and duration combination       | Riskiest: G 13–36 months (29.7%); safest: AA up to 12 months (1.6%)                                        |
+| Part                   | What we checked                                             | Result                                                                                                |
+| ---------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| KPIs and segments      | `kpi_overall` and `kpi_by_segment` for all six segments | Same numbers as in pandas (default rate 13.7%)                                                        |
+| A. Data quality        | Duplicate IDs, value ranges, zero income, flag vs status    | 0 duplicates; 190 loans with income 0 (kept); `is_default` = 1 exactly for "Defaulted"              |
+| B. By issue year       | Loans, default rate, 12-month default rate, loan age        | Lending more than doubled; 2025 loans only look safer because they are younger                        |
+| C. Defaulted vs not    | Average income, amount, interest rate, duration             | Defaulted loans: lower income, larger amount, higher rate, longer duration                            |
+| D1. Country profile    | Income, amount, rate, share unrated and F/G/HR per country  | Spain: 98% unrated; Latvia: lowest income, highest rate; Denmark: 31.5% F/G/HR                        |
+| D2. Amount profile     | Income, rate and share AA/A/B per amount band               | 5,000+ loans go to better-rated borrowers (75% AA/A/B vs 43%), so they default less than 2,000–4,999 |
+| D3. Rating × duration | Default rate for every rating and duration combination      | Riskiest: G 13–36 months (29.7%); safest: AA up to 12 months (1.6%)                                  |
 
-## Next step: Tableau dashboard and story
+## Prediction model (`Modelling/model.ipynb`)
 
-Next week we build the Tableau dashboard and story on the dbt tables `analytics.fct_loans` and `analytics.kpi_by_segment`.
+| Item     | Details                                                                                                             |
+| -------- | ------------------------------------------------------------------------------------------------------------------- |
+| Goal     | Predict default within 12 months (9.1% of loans) and cancellation (4.1%)                                            |
+| Inputs   | Income, loan amount, interest rate, duration (standardised), country and risk rating, all known on the day of issue |
+| Not used | `principal_debt`, `months_in_default`, `loan_status`: only known after default (leakage)                      |
+| Method   | Multiple logistic regression (scikit-learn). Linear regression was tried first but gave negative probabilities      |
+| Data     | Trained on 308,319 loans, tested on 77,080 unseen loans                                                             |
+| Result   | AUC 0.70 (cross-validation 0.704 ± 0.002); the riskiest 10% default 24.5% vs 1.7% for the safest 10%               |
+| Outputs  | `data/model_scores.csv`, `data/model_odds_ratios.csv`, `data/model_cutoffs.csv` (used in Tableau)             |
+
+## Tableau Story (`Tableau_Visualization/Bondora_Capstone_Project_Presentation.twbx`)
+
+The story **Final Presentation** has 21 pages: Introduction, Data Pipeline, **Story 1 – What drives default?** (Q1–Q8), **Story 2 – Can we predict default?** (Q9–Q14), Recommendations, Limitations and Thank you. It is built on `analytics.fct_loans`, `analytics.kpi_by_segment` and the three model CSV files.
 
 ## Repository Structure
 
+```text
 Capstone-Bondora-Project/
 ├── Cleaning_and_Analyzing/
 │   ├── analysis.ipynb        # cleaning, missing values, KPIs, load into PostgreSQL
@@ -279,11 +299,15 @@ Capstone-Bondora-Project/
 │   └── models/
 │       ├── staging/          # sources.yml, stg_loans.sql
 │       └── marts/            # fct_loans, kpi_overall, kpi_by_segment, tests
-├── data/                     # raw Excel file and Parquet files
-├── Goals/
-│   └── daily_goals.md        # daily progress
+├── Modelling/
+│   └── model.ipynb           # logistic regression, risk groups, odds ratios, cut-offs
+├── Tableau_Visualization/
+│   └── Bondora_Capstone_Project_Presentation.twbx   # final Tableau Story
+├── data/                     # raw Excel, Parquet files and model CSV outputs
 ├── Image/                    # images for the README
-├── Dashboard1.twbx           # Tableau workbook (work in progress, next week)
-├── Bondora Credit Risk – Standup.pptx
+├── load.py
+├── Bondora Credit Risk – Standup_1.pptx
 ├── Bondora Credit Risk – Standup 2.pptx
+├── Bondora_Credit_Risk_-_Standup_3.pptx
 └── README.md
+```
